@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using WindowsFormsApp.Models.Resources;
 
 namespace WindowsFormsApp.Models
 {
@@ -8,26 +6,22 @@ namespace WindowsFormsApp.Models
     {
         public int maxCapacity;
 
-        public override void Produce(Warehouse warehouse, ref int availableElectricity)
+        public override void Produce(Warehouse warehouse, ref int availableElectricity, Action<string> log = null)
         {
             if (activeRecipe == null) return;
-
-         
-            if (!warehouse.HasResources(activeRecipe.requiredResourcesList))
+            if (!warehouse.HasResources(activeRecipe.RequiredResources))
             {
-                Console.WriteLine($"  [{name}] Нема вугілля");
+                log?.Invoke($"  [{name}] Нема палива");
                 return;
             }
 
-           
-            warehouse.RemoveResources(activeRecipe.requiredResourcesList);
+            warehouse.RemoveResources(activeRecipe.RequiredResources);
 
-            
-            foreach (var resource in activeRecipe.receivedResourcesList)
+            foreach (var resource in activeRecipe.ReceivedResources)
             {
                 int generated = (int)(resource.amount * (efficiency / 100.0));
                 availableElectricity += generated;
-                Console.WriteLine($"  [{name}] Згенеровано {generated} електрики. Всього: {availableElectricity}");
+                log?.Invoke($"  [{name}] Згенеровано {generated} електрики");
             }
         }
     }

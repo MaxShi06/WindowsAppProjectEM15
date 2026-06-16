@@ -7,10 +7,35 @@ namespace WindowsFormsApp.Models
     public abstract class Production
     {
         public int id;
-        public string name;
+
+        private string _name;
+        public string name
+        {
+            get { return _name; }
+            set
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                    _name = value;
+                else
+                    throw new ArgumentException("Назва підприємства не може бути порожньою");
+            }
+        }
+
+        private double _efficiency = 100.0;
+        public double efficiency
+        {
+            get { return _efficiency; }
+            set
+            {
+                if (value >= 0 && value <= 100)
+                    _efficiency = value;
+                else
+                    throw new ArgumentOutOfRangeException("value", "Ефективність повинна бути від 0 до 100");
+            }
+        }
+
         public List<Recipe> recipeList = new List<Recipe>();
         public Recipe activeRecipe;
-        public double efficiency = 100.0;
 
         public void SetActiveRecipe(Recipe recipe)
         {
@@ -18,18 +43,14 @@ namespace WindowsFormsApp.Models
                 activeRecipe = recipe;
         }
 
-        public abstract void Produce(Warehouse warehouse, ref int availableElectricity);
-
-        
-        protected void ProduceWithElectricity(Warehouse warehouse, ref int availableElectricity)
+        public virtual void Produce(Warehouse warehouse, ref int availableElectricity, Action<string> log = null)
         {
             if (activeRecipe == null) return;
 
-           
             int electricityNeeded = 0;
-            List<ResourceAmount> warehouseResources = new List<ResourceAmount>();
+            var warehouseResources = new List<ResourceAmount>();
 
-            foreach (var resource in activeRecipe.requiredResourcesList)
+            foreach (var resource in activeRecipe.RequiredResources)
             {
                 if (resource.resourceType == ResourceType.Electricity)
                     electricityNeeded += (int)resource.amount;
@@ -37,31 +58,26 @@ namespace WindowsFormsApp.Models
                     warehouseResources.Add(resource);
             }
 
-
             if (availableElectricity < electricityNeeded)
             {
-                Console.WriteLine($"  [{name}] Не вистачає електрики: є {availableElectricity}, треба {electricityNeeded}");
+                log?.Invoke($"  [{name}] Не вистачає електрики: є {availableElectricity}, треба {electricityNeeded}");
                 return;
             }
-
-   
             if (!warehouse.HasResources(warehouseResources))
             {
-                Console.WriteLine($"  [{name}] Не вистачає ресурсів на складі");
+                log?.Invoke($"  [{name}] Не вистачає ресурсів на складі");
                 return;
             }
 
-         
             availableElectricity -= electricityNeeded;
             warehouse.RemoveResources(warehouseResources);
 
-         
-            List<ResourceAmount> produced = new List<ResourceAmount>();
-            foreach (var resource in activeRecipe.receivedResourcesList)
+            var produced = new List<ResourceAmount>();
+            foreach (var resource in activeRecipe.ReceivedResources)
             {
                 double actualAmount = resource.amount * (efficiency / 100.0);
                 produced.Add(new ResourceAmount(resource.resourceType, actualAmount));
-                Console.WriteLine($"  [{name}] Вироблено: {actualAmount:F1} {resource.resourceType}");
+                log?.Invoke($"  [{name}] Вироблено: {actualAmount:F1} {resource.resourceType.DisplayName()}");
             }
             warehouse.AddResources(produced);
         }
