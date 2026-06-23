@@ -6,7 +6,7 @@ namespace WindowsFormsApp.Models
 {
     public class Concern
     {
-        public int id;
+        public int id { get; private set; }
 
         private string _name;
         public string name
@@ -24,28 +24,37 @@ namespace WindowsFormsApp.Models
         public List<Production> productionList = new List<Production>();
         public Warehouse warehouse;
         public int availableElectricity;
+        public List<string> log = new List<string>();
 
-        public void RunCycle(int days, Action<string> log = null)
+        public Concern(int id, string name)
         {
+            this.id = id;
+            this.name = name;
+        }
+
+        public void RunCycle(int days)
+        {
+            log.Clear();
+
             for (int day = 1; day <= days; day++)
             {
                 availableElectricity = 0;
-                log?.Invoke($"=== День {day} ===");
+                log.Add($"=== День {day} ===");
 
                 foreach (var p in productionList)
                     if (p is PowerStation)
-                        p.Produce(warehouse, ref availableElectricity, log);
+                        p.Produce(this);
 
-                log?.Invoke($"  Електрика: {availableElectricity}");
+                log.Add($"  Електрика: {availableElectricity}");
 
                 foreach (var p in productionList)
                     if (!(p is PowerStation))
-                        p.Produce(warehouse, ref availableElectricity, log);
+                        p.Produce(this);
 
-                log?.Invoke("  [Склад]");
-                foreach (var r in warehouse.resourceList)
+                log.Add("  [Склад]");
+                foreach (var r in warehouse.ResourceList)
                     if (r.amount > 0)
-                        log?.Invoke($"    {r.resourceType.DisplayName()}: {r.amount:F1}");
+                        log.Add($"    {r.resourceType.DisplayName()}: {r.amount:F1}");
             }
         }
     }

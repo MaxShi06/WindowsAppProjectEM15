@@ -1,4 +1,4 @@
-using System;
+using WindowsFormsApp.Models.Resources;
 
 namespace WindowsFormsApp.Models
 {
@@ -6,23 +6,37 @@ namespace WindowsFormsApp.Models
     {
         public int maxCapacity;
 
-        public override void Produce(Warehouse warehouse, ref int availableElectricity, Action<string> log = null)
+        public PowerStation(int id, string name) : base(id, name) { }
+
+        public override void Produce(Concern concern)
         {
             if (activeRecipe == null) return;
-            if (!warehouse.HasResources(activeRecipe.RequiredResources))
+            if (!concern.warehouse.HasResources(activeRecipe.RequiredResources))
             {
-                log?.Invoke($"  [{name}] Нема палива");
+                concern.log.Add($"  [{name}] Нема палива");
                 return;
             }
 
-            warehouse.RemoveResources(activeRecipe.RequiredResources);
+            concern.warehouse.RemoveResources(activeRecipe.RequiredResources);
 
             foreach (var resource in activeRecipe.ReceivedResources)
             {
                 int generated = (int)(resource.amount * (efficiency / 100.0));
-                availableElectricity += generated;
-                log?.Invoke($"  [{name}] Згенеровано {generated} електрики");
+                concern.availableElectricity += generated;
+                concern.log.Add($"  [{name}] Згенеровано {generated} електрики");
             }
+        }
+
+        public static PowerStation Create(int id, string name)
+        {
+            PowerStation production = new PowerStation(id, name);
+            Recipe recipe = new RecipeBuilder(id, "Вугілля -> Електрика", 1)
+                .Require(ResourceType.Coal, 1)
+                .Receive(ResourceType.Electricity, 10)
+                .Build();
+            production.recipeList.Add(recipe);
+            production.SetActiveRecipe(recipe);
+            return production;
         }
     }
 }

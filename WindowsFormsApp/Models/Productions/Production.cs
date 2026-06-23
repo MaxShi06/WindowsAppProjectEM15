@@ -6,29 +6,29 @@ namespace WindowsFormsApp.Models
 {
     public abstract class Production
     {
-        public int id;
+        public int id { get; private set; }
 
-        private string _name;
+        private string nameValue;
         public string name
         {
-            get { return _name; }
+            get { return nameValue; }
             set
             {
                 if (!string.IsNullOrWhiteSpace(value))
-                    _name = value;
+                    nameValue = value;
                 else
                     throw new ArgumentException("Назва підприємства не може бути порожньою");
             }
         }
 
-        private double _efficiency = 100.0;
+        private double efficiencyValue = 100.0;
         public double efficiency
         {
-            get { return _efficiency; }
+            get { return efficiencyValue; }
             set
             {
                 if (value >= 0 && value <= 100)
-                    _efficiency = value;
+                    efficiencyValue = value;
                 else
                     throw new ArgumentOutOfRangeException("value", "Ефективність повинна бути від 0 до 100");
             }
@@ -37,49 +37,66 @@ namespace WindowsFormsApp.Models
         public List<Recipe> recipeList = new List<Recipe>();
         public Recipe activeRecipe;
 
+        protected Production(int id, string name)
+        {
+            this.id = id;
+            this.name = name;
+        }
+
         public void SetActiveRecipe(Recipe recipe)
         {
             if (recipeList.Contains(recipe))
                 activeRecipe = recipe;
         }
 
-        public virtual void Produce(Warehouse warehouse, ref int availableElectricity, Action<string> log = null)
+        public virtual void Produce(Concern concern)
         {
-            if (activeRecipe == null) return;
+            if (activeRecipe == null)
+            {
+                return;
+            }
 
             int electricityNeeded = 0;
-            var warehouseResources = new List<ResourceAmount>();
+            List<ResourceAmount> warehouseResources = new List<ResourceAmount>();
 
-            foreach (var resource in activeRecipe.RequiredResources)
+            foreach (ResourceAmount resource in activeRecipe.RequiredResources)
             {
                 if (resource.resourceType == ResourceType.Electricity)
-                    electricityNeeded += (int)resource.amount;
+                {
+                    electricityNeeded = electricityNeeded + (int)resource.amount;
+                }
                 else
+                {
                     warehouseResources.Add(resource);
+                }
             }
 
-            if (availableElectricity < electricityNeeded)
+            if (concern.availableElectricity < electricityNeeded)
             {
-                log?.Invoke($"  [{name}] Не вистачає електрики: є {availableElectricity}, треба {electricityNeeded}");
-                return;
-            }
-            if (!warehouse.HasResources(warehouseResources))
-            {
-                log?.Invoke($"  [{name}] Не вистачає ресурсів на складі");
+                concern.log.Add("  [" + name + "] Не вистачає електрики: є " + concern.availableElectricity + ", треба " + electricityNeeded);
                 return;
             }
 
-            availableElectricity -= electricityNeeded;
-            warehouse.RemoveResources(warehouseResources);
+            if (!concern.warehouse.HasResources(warehouseResources))
+            {
+                concern.log.Add("  [" + name + "] Не вистачає ресурсів на складі");
+                return;
+            }
 
-            var produced = new List<ResourceAmount>();
-            foreach (var resource in activeRecipe.ReceivedResources)
+            concern.availableElectricity = concern.availableElectricity - electricityNeeded;
+            concern.warehouse.RemoveResources(warehouseResources);
+
+            List<ResourceAmount> produced = new List<ResourceAmount>();
+
+            foreach (ResourceAmount resource in activeRecipe.ReceivedResources)
             {
                 double actualAmount = resource.amount * (efficiency / 100.0);
-                produced.Add(new ResourceAmount(resource.resourceType, actualAmount));
-                log?.Invoke($"  [{name}] Вироблено: {actualAmount:F1} {resource.resourceType.DisplayName()}");
+                ResourceAmount producedResource = new ResourceAmount(resource.resourceType, actualAmount);
+                produced.Add(producedResource);
+                concern.log.Add("  [" + name + "] Вироблено: " + actualAmount.ToString("F1") + " " + resource.resourceType.DisplayName());
             }
-            warehouse.AddResources(produced);
+
+            concern.warehouse.AddResources(produced);
         }
     }
 }

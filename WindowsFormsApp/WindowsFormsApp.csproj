@@ -53,7 +53,9 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\Concern.cs" />
+    <Compile Include="Models\ConcernBuilder.cs" />
     <Compile Include="Models\Recipe.cs" />
+    <Compile Include="Models\RecipeBuilder.cs" />
     <Compile Include="Models\Warehouse.cs" />
     <Compile Include="Models\Productions\Production.cs" />
     <Compile Include="Models\Productions\PowerStation.cs" />

@@ -9,11 +9,19 @@ namespace WindowsFormsApp.Models
         public int Id { get; private set; }
         public string Name { get; private set; }
         public int Duration { get; private set; }
-        public IReadOnlyList<ResourceAmount> RequiredResources => _required.AsReadOnly();
-        public IReadOnlyList<ResourceAmount> ReceivedResources => _received.AsReadOnly();
 
-        private readonly List<ResourceAmount> _required = new List<ResourceAmount>();
-        private readonly List<ResourceAmount> _received = new List<ResourceAmount>();
+        private List<ResourceAmount> requiredResources = new List<ResourceAmount>();
+        private List<ResourceAmount> receivedResources = new List<ResourceAmount>();
+
+        public List<ResourceAmount> RequiredResources
+        {
+            get { return requiredResources; }
+        }
+
+        public List<ResourceAmount> ReceivedResources
+        {
+            get { return receivedResources; }
+        }
 
         public Recipe(int id, string name, int duration)
         {
@@ -45,26 +53,74 @@ namespace WindowsFormsApp.Models
 
         public void AddRequiredResource(ResourceType type, double amount)
         {
-            foreach (var r in _required)
-                if (r.resourceType == type) { r.amount = amount; return; }
-            _required.Add(new ResourceAmount(type, amount));
+            bool found = false;
+
+            foreach (ResourceAmount r in requiredResources)
+            {
+                if (r.resourceType == type)
+                {
+                    r.amount = amount;
+                    found = true;
+                }
+            }
+
+            if (found == false)
+            {
+                ResourceAmount newResource = new ResourceAmount(type, amount);
+                requiredResources.Add(newResource);
+            }
         }
 
         public void RemoveRequiredResource(ResourceType type)
         {
-            _required.RemoveAll(r => r.resourceType == type);
+            int index = 0;
+            while (index < requiredResources.Count)
+            {
+                if (requiredResources[index].resourceType == type)
+                {
+                    requiredResources.RemoveAt(index);
+                }
+                else
+                {
+                    index = index + 1;
+                }
+            }
         }
 
         public void AddReceivedResource(ResourceType type, double amount)
         {
-            foreach (var r in _received)
-                if (r.resourceType == type) { r.amount = amount; return; }
-            _received.Add(new ResourceAmount(type, amount));
+            bool found = false;
+
+            foreach (ResourceAmount r in receivedResources)
+            {
+                if (r.resourceType == type)
+                {
+                    r.amount = amount;
+                    found = true;
+                }
+            }
+
+            if (found == false)
+            {
+                ResourceAmount newResource = new ResourceAmount(type, amount);
+                receivedResources.Add(newResource);
+            }
         }
 
         public void RemoveReceivedResource(ResourceType type)
         {
-            _received.RemoveAll(r => r.resourceType == type);
+            int index = 0;
+            while (index < receivedResources.Count)
+            {
+                if (receivedResources[index].resourceType == type)
+                {
+                    receivedResources.RemoveAt(index);
+                }
+                else
+                {
+                    index = index + 1;
+                }
+            }
         }
     }
 }
