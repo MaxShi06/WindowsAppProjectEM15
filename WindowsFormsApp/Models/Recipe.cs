@@ -25,14 +25,9 @@ namespace WindowsFormsApp.Models
 
         public Recipe(int id, string name, int duration)
         {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Назва рецепту не може бути порожньою");
-            if (duration <= 0)
-                throw new ArgumentOutOfRangeException("duration", "Тривалість повинна бути більшою за 0");
-
             Id = id;
-            Name = name;
-            Duration = duration;
+            SetName(name);
+            SetDuration(duration);
         }
 
         public void SetName(string name)
@@ -73,18 +68,7 @@ namespace WindowsFormsApp.Models
 
         public void RemoveRequiredResource(ResourceType type)
         {
-            int index = 0;
-            while (index < requiredResources.Count)
-            {
-                if (requiredResources[index].resourceType == type)
-                {
-                    requiredResources.RemoveAt(index);
-                }
-                else
-                {
-                    index = index + 1;
-                }
-            }
+            requiredResources.RemoveAll(resourse => resourse.resourceType == type);
         }
 
         public void AddReceivedResource(ResourceType type, double amount)

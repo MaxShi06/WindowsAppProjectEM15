@@ -62,6 +62,7 @@ namespace WindowsFormsApp.Models
                     {
                         r.amount = r.amount + item.amount;
                         found = true;
+                        continue;
                     }
                 }
 

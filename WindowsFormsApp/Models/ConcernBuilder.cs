@@ -11,8 +11,6 @@ namespace WindowsFormsApp.Models
         public ConcernBuilder(int id, string name)
         {
             concern = new Concern(id, name);
-            Warehouse warehouse = new Warehouse(id);
-            concern.warehouse = warehouse;
             nextId = 1;
         }
 
@@ -26,50 +24,44 @@ namespace WindowsFormsApp.Models
 
         public void AddPowerStation(string name)
         {
-            PowerStation station = PowerStation.Create(nextId, name);
-            concern.productionList.Add(station);
+
+            concern.productionList.Add(PowerStation.Create(nextId, name));
             nextId = nextId + 1;
         }
 
         public void AddCoalMine(string name)
         {
-            CoalMine mine = CoalMine.Create(nextId, name);
-            concern.productionList.Add(mine);
+            concern.productionList.Add(CoalMine.Create(nextId, name));
             nextId = nextId + 1;
         }
 
         public void AddIronMine(string name)
         {
-            IronMine mine = IronMine.Create(nextId, name);
-            concern.productionList.Add(mine);
+            concern.productionList.Add(IronMine.Create(nextId, name));
             nextId = nextId + 1;
         }
 
         public void AddOilWell(string name)
         {
-            OilWell well = OilWell.Create(nextId, name);
-            concern.productionList.Add(well);
+            concern.productionList.Add(OilWell.Create(nextId, name));
             nextId = nextId + 1;
         }
 
         public void AddSteelPlant(string name)
         {
-            SteelPlant plant = SteelPlant.Create(nextId, name);
-            concern.productionList.Add(plant);
+            concern.productionList.Add(SteelPlant.Create(nextId, name));
             nextId = nextId + 1;
         }
 
         public void AddOilRefinery(string name)
-        {
-            OilRefinery refinery = OilRefinery.Create(nextId, name);
-            concern.productionList.Add(refinery);
+        { 
+            concern.productionList.Add(OilRefinery.Create(nextId, name));
             nextId = nextId + 1;
         }
 
         public void AddApplianceFactory(string name)
         {
-            ApplianceFactory factory = ApplianceFactory.Create(nextId, name);
-            concern.productionList.Add(factory);
+            concern.productionList.Add(ApplianceFactory.Create(nextId, name));
             nextId = nextId + 1;
         }
 

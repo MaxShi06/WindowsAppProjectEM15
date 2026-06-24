@@ -22,14 +22,15 @@ namespace WindowsFormsApp.Models
         }
 
         public List<Production> productionList = new List<Production>();
-        public Warehouse warehouse;
-        public int availableElectricity;
+        public Warehouse warehouse = null;
+        public int availableElectricity = 0;
         public List<string> log = new List<string>();
 
         public Concern(int id, string name)
         {
             this.id = id;
             this.name = name;
+            warehouse = new Warehouse(id);
         }
 
         public void RunCycle(int days)

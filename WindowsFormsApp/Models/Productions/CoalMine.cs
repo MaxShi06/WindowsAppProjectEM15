@@ -6,6 +6,7 @@ namespace WindowsFormsApp.Models
     {
         public CoalMine(int id, string name) : base(id, name) { }
 
+
         public static CoalMine Create(int id, string name)
         {
             CoalMine production = new CoalMine(id, name);
