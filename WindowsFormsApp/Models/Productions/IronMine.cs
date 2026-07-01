@@ -6,6 +6,8 @@ namespace WindowsFormsApp.Models
     {
         public IronMine(int id, string name) : base(id, name) { }
 
+        public override ProductionType GetProductionType() => ProductionType.IronMine;
+
         public static IronMine Create(int id, string name)
         {
             IronMine production = new IronMine(id, name);

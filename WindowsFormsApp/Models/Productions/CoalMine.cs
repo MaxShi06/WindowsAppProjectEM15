@@ -6,6 +6,8 @@ namespace WindowsFormsApp.Models
     {
         public CoalMine(int id, string name) : base(id, name) { }
 
+        public override ProductionType GetProductionType() => ProductionType.CoalMine;
+
 
         public static CoalMine Create(int id, string name)
         {

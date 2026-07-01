@@ -6,6 +6,8 @@ namespace WindowsFormsApp.Models
     {
         public OilWell(int id, string name) : base(id, name) { }
 
+        public override ProductionType GetProductionType() => ProductionType.OilWell;
+
         public static OilWell Create(int id, string name)
         {
             OilWell production = new OilWell(id, name);

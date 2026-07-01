@@ -14,55 +14,61 @@ namespace WindowsFormsApp.Models
             nextId = 1;
         }
 
-        public void AddInitialResources(ResourceType type, double amount)
+        public ConcernBuilder AddInitialResources(ResourceType type, double amount)
         {
             List<ResourceAmount> resources = new List<ResourceAmount>();
-            ResourceAmount resourceAmount = new ResourceAmount(type, amount);
-            resources.Add(resourceAmount);
+            resources.Add(new ResourceAmount(type, amount));
             concern.warehouse.AddResources(resources);
+            return this;
         }
 
-        public void AddPowerStation(string name)
+        public ConcernBuilder AddPowerStation(string name)
         {
-
             concern.productionList.Add(PowerStation.Create(nextId, name));
             nextId = nextId + 1;
+            return this;
         }
 
-        public void AddCoalMine(string name)
+        public ConcernBuilder AddCoalMine(string name)
         {
             concern.productionList.Add(CoalMine.Create(nextId, name));
             nextId = nextId + 1;
+            return this;
         }
 
-        public void AddIronMine(string name)
+        public ConcernBuilder AddIronMine(string name)
         {
             concern.productionList.Add(IronMine.Create(nextId, name));
             nextId = nextId + 1;
+            return this;
         }
 
-        public void AddOilWell(string name)
+        public ConcernBuilder AddOilWell(string name)
         {
             concern.productionList.Add(OilWell.Create(nextId, name));
             nextId = nextId + 1;
+            return this;
         }
 
-        public void AddSteelPlant(string name)
+        public ConcernBuilder AddSteelPlant(string name)
         {
             concern.productionList.Add(SteelPlant.Create(nextId, name));
             nextId = nextId + 1;
+            return this;
         }
 
-        public void AddOilRefinery(string name)
-        { 
+        public ConcernBuilder AddOilRefinery(string name)
+        {
             concern.productionList.Add(OilRefinery.Create(nextId, name));
             nextId = nextId + 1;
+            return this;
         }
 
-        public void AddApplianceFactory(string name)
+        public ConcernBuilder AddApplianceFactory(string name)
         {
             concern.productionList.Add(ApplianceFactory.Create(nextId, name));
             nextId = nextId + 1;
+            return this;
         }
 
         public Concern Build()

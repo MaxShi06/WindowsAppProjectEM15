@@ -1,5 +1,7 @@
 using System;
 using System.Windows.Forms;
+using WindowsFormsApp.Data;
+using WindowsFormsApp.Repositories;
 
 namespace WindowsFormsApp
 {
@@ -10,7 +12,13 @@ namespace WindowsFormsApp
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+
+            DatabaseHelper db = new DatabaseHelper();
+            db.EnsureTables();
+
+            IConcernRepository repo = new ConcernRepository(db.GetConnector());
+
+            Application.Run(new Form1(repo));
         }
     }
 }

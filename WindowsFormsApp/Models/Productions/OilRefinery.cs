@@ -6,6 +6,8 @@ namespace WindowsFormsApp.Models
     {
         public OilRefinery(int id, string name) : base(id, name) { }
 
+        public override ProductionType GetProductionType() => ProductionType.OilRefinery;
+
         public static OilRefinery Create(int id, string name)
         {
             OilRefinery production = new OilRefinery(id, name);

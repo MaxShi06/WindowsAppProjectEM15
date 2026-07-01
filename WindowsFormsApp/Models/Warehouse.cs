@@ -78,19 +78,21 @@ namespace WindowsFormsApp.Models
         {
             foreach (ResourceAmount item in resources)
             {
-                foreach (ResourceAmount r in resourceList)
+                for (int i = resourceList.Count - 1; i >= 0; i--)
                 {
-                    if (r.resourceType == item.resourceType)
+                    if (resourceList[i].resourceType == item.resourceType)
                     {
-                        double newAmount = r.amount - item.amount;
-                        if (newAmount < 0)
-                        {
-                            newAmount = 0;
-                        }
-                        r.amount = newAmount;
+                        resourceList[i].amount -= item.amount;
+                        if (resourceList[i].amount <= 0)
+                            resourceList.RemoveAt(i);
                     }
                 }
             }
+        }
+
+        public void RemoveAll()
+        {
+            resourceList.Clear();
         }
     }
 }

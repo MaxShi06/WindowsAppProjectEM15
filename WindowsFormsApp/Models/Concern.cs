@@ -39,18 +39,17 @@ namespace WindowsFormsApp.Models
 
             for (int day = 1; day <= days; day++)
             {
-                availableElectricity = 0;
                 log.Add($"=== День {day} ===");
 
                 foreach (var p in productionList)
                     if (p is PowerStation)
-                        p.Produce(this);
+                        p.Produce(warehouse, log);
 
-                log.Add($"  Електрика: {availableElectricity}");
+                log.Add($"  Електрика: {warehouse.GetAmount(ResourceType.Electricity)}");
 
                 foreach (var p in productionList)
                     if (!(p is PowerStation))
-                        p.Produce(this);
+                        p.Produce(warehouse, log);
 
                 log.Add("  [Склад]");
                 foreach (var r in warehouse.ResourceList)

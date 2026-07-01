@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using WindowsFormsApp.Models;
 using WindowsFormsApp.Models.Resources;
+using WindowsFormsApp.Repositories;
 
 namespace WindowsFormsApp
 {
@@ -10,10 +11,13 @@ namespace WindowsFormsApp
     {
         private Concern concern;
         private ConcernBuilder concernBuilder;
+        private IConcernRepository concernRepository;
+        private int cycleCount = 0;
 
-        public Form1()
+        public Form1(IConcernRepository concernRepository)
         {
             InitializeComponent();
+            this.concernRepository = concernRepository;
             InitializeConcern();
             RefreshProductions();
             RefreshWarehouse();
@@ -132,6 +136,15 @@ namespace WindowsFormsApp
 
             RefreshWarehouse();
             richTextBoxLog.ScrollToCaret();
+
+            cycleCount++;
+            if (cycleCount % 10 == 0)
+            {
+                int savedId = concernRepository.Save(concern);
+                if (concern.id == 0)
+                    concern = concernRepository.Load(savedId);
+                richTextBoxLog.AppendText($"\n[Авто-збереження виконано]\n");
+            }
         }
 
         private void buttonRun_MouseEnter(object sender, EventArgs e)

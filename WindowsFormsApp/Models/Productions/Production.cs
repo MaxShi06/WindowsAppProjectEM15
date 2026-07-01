@@ -43,16 +43,37 @@ namespace WindowsFormsApp.Models
             this.name = name;
         }
 
+        public abstract ProductionType GetProductionType();
+
+        public static Production Create(int id, string name, ProductionType type, double efficiency)
+        {
+            Production p;
+            switch (type)
+            {
+                case ProductionType.PowerStation:     p = PowerStation.Create(id, name);     break;
+                case ProductionType.CoalMine:         p = CoalMine.Create(id, name);         break;
+                case ProductionType.IronMine:         p = IronMine.Create(id, name);         break;
+                case ProductionType.OilWell:          p = OilWell.Create(id, name);          break;
+                case ProductionType.SteelPlant:       p = SteelPlant.Create(id, name);       break;
+                case ProductionType.OilRefinery:      p = OilRefinery.Create(id, name);      break;
+                case ProductionType.ApplianceFactory: p = ApplianceFactory.Create(id, name); break;
+                default: throw new InvalidOperationException("Unknown production type");
+            }
+            p.efficiency = efficiency;
+            return p;
+        }
+
         public void SetActiveRecipe(Recipe recipe)
         {
             if (recipeList.Contains(recipe))
                 activeRecipe = recipe;
         }
 
-        public virtual void Produce(Concern concern)
+        public virtual void Produce(Warehouse warehouse, List<string> log)
         {
             if (activeRecipe == null)
             {
+                log.Add($"  [{name}] Рецепт не встановлено");
                 return;
             }
 
@@ -62,41 +83,37 @@ namespace WindowsFormsApp.Models
             foreach (ResourceAmount resource in activeRecipe.RequiredResources)
             {
                 if (resource.resourceType == ResourceType.Electricity)
-                {
                     electricityNeeded = electricityNeeded + (int)resource.amount;
-                }
                 else
-                {
                     warehouseResources.Add(resource);
-                }
             }
 
-            if (concern.availableElectricity < electricityNeeded)
+            if (warehouse.GetAmount(ResourceType.Electricity) < electricityNeeded)
             {
-                concern.log.Add("  [" + name + "] Не вистачає електрики: є " + concern.availableElectricity + ", треба " + electricityNeeded);
+                log.Add($"  [{name}] Не вистачає електрики");
                 return;
             }
 
-            if (!concern.warehouse.HasResources(warehouseResources))
+            if (!warehouse.HasResources(warehouseResources))
             {
-                concern.log.Add("  [" + name + "] Не вистачає ресурсів на складі");
+                log.Add($"  [{name}] Не вистачає ресурсів на складі");
                 return;
             }
 
-            concern.availableElectricity = concern.availableElectricity - electricityNeeded;
-            concern.warehouse.RemoveResources(warehouseResources);
+            List<ResourceAmount> electricityUsed = new List<ResourceAmount>();
+            electricityUsed.Add(new ResourceAmount(ResourceType.Electricity, electricityNeeded));
+            warehouse.RemoveResources(electricityUsed);
+            warehouse.RemoveResources(warehouseResources);
 
             List<ResourceAmount> produced = new List<ResourceAmount>();
-
             foreach (ResourceAmount resource in activeRecipe.ReceivedResources)
             {
                 double actualAmount = resource.amount * (efficiency / 100.0);
-                ResourceAmount producedResource = new ResourceAmount(resource.resourceType, actualAmount);
-                produced.Add(producedResource);
-                concern.log.Add("  [" + name + "] Вироблено: " + actualAmount.ToString("F1") + " " + resource.resourceType.DisplayName());
+                produced.Add(new ResourceAmount(resource.resourceType, actualAmount));
+                log.Add($"  [{name}] Вироблено: {actualAmount:F1} {resource.resourceType.DisplayName()}");
             }
 
-            concern.warehouse.AddResources(produced);
+            warehouse.AddResources(produced);
         }
     }
 }

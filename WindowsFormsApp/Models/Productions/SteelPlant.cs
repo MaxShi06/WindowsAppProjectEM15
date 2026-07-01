@@ -6,6 +6,8 @@ namespace WindowsFormsApp.Models
     {
         public SteelPlant(int id, string name) : base(id, name) { }
 
+        public override ProductionType GetProductionType() => ProductionType.SteelPlant;
+
         public static SteelPlant Create(int id, string name)
         {
             SteelPlant production = new SteelPlant(id, name);

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using WindowsFormsApp.Models.Resources;
 
 namespace WindowsFormsApp.Models
@@ -8,22 +9,31 @@ namespace WindowsFormsApp.Models
 
         public PowerStation(int id, string name) : base(id, name) { }
 
-        public override void Produce(Concern concern)
+        public override ProductionType GetProductionType() => ProductionType.PowerStation;
+
+        public override void Produce(Warehouse warehouse, List<string> log)
         {
-            if (activeRecipe == null) return;
-            if (!concern.warehouse.HasResources(activeRecipe.RequiredResources))
+            if (activeRecipe == null)
             {
-                concern.log.Add($"  [{name}] Нема палива");
+                log.Add($"  [{name}] Рецепт не встановлено");
                 return;
             }
 
-            concern.warehouse.RemoveResources(activeRecipe.RequiredResources);
+            if (!warehouse.HasResources(activeRecipe.RequiredResources))
+            {
+                log.Add($"  [{name}] Нема палива");
+                return;
+            }
+
+            warehouse.RemoveResources(activeRecipe.RequiredResources);
 
             foreach (var resource in activeRecipe.ReceivedResources)
             {
                 int generated = (int)(resource.amount * (efficiency / 100.0));
-                concern.availableElectricity += generated;
-                concern.log.Add($"  [{name}] Згенеровано {generated} електрики");
+                List<ResourceAmount> electricity = new List<ResourceAmount>();
+                electricity.Add(new ResourceAmount(ResourceType.Electricity, generated));
+                warehouse.AddResources(electricity);
+                log.Add($"  [{name}] Згенеровано {generated} електрики");
             }
         }
 

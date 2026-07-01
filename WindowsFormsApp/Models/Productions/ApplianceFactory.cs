@@ -6,6 +6,8 @@ namespace WindowsFormsApp.Models
     {
         public ApplianceFactory(int id, string name) : base(id, name) { }
 
+        public override ProductionType GetProductionType() => ProductionType.ApplianceFactory;
+
         public static ApplianceFactory Create(int id, string name)
         {
             ApplianceFactory production = new ApplianceFactory(id, name);
